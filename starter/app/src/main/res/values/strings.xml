@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">Location Reminders</string>
+    <string name="error_happened">Error happened</string>
+    <string name="retry">Retry</string>
+    <string name="no_data">No Data</string>
+    <string name="reminder_title">Reminder Title</string>
+    <string name="reminder_desc">Description</string>
+    <string name="reminder_location">Reminder Location</string>
+    <string name="save">Save</string>
+    <string name="reminder_saved">Reminder Saved !</string>
+    <string name="logout">Logout</string>
+    <string name="welcome_to_the_location_reminder_app">Welcome to the location reminder app</string>
+    <string name="login">Login</string>
+    <string name="login_with_google">Continue with Google</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="normal_map">Normal Map</string>
+    <string name="hybrid_map">Hybrid Map</string>
+    <string name="satellite_map">Satellite Map</string>
+    <string name="terrain_map">Terrain Map</string>
+    <string name="lat_long_snippet">Lat: %1$.5f, Long: %2$.5f</string>
+    <string name="dropped_pin">Dropped Pin</string>
+    <string name="poi">poi</string>
+    <string name="location_required_error">Location services must be enabled to use the app</string>
+    <string name="permission_denied_explanation">You need to grant location permission in order to select the location.</string>
+    <string name="settings">Settings</string>
+    <string name="select_poi">Please select a point of interest</string>
+    <string name="geofence_entered">Geofence Entered</string>
+    <string name="channel_name">GeofenceStatus</string>
+    <string name="notification_channel_description">Geofence status notification</string>
+    <string name="content_text">Location Reminder</string>
+    <string name="select_title">Please select title</string>
+    <string name="select_location">Please select location</string>
+    <string name="geofences_not_added">Problem in adding geofences.</string>
+    <string name="welcome">Welcome</string>
+    <string name="err_enter_title">Please enter title</string>
+    <string name="err_select_location">Please select location</string>
+
+    <!-- Error strings -->
+    <string name="geofence_unknown_error">Unknown error: the Geofence service is not available now.</string>
+    <string name="geofence_not_available">Geofence service is not available now. Go to Settings>Location>Mode and choose High accuracy.</string>
+    <string name="geofence_too_many_geofences">Your app has registered too many geofences.</string>
+    <string name="geofence_too_many_pending_intents">You have provided too many PendingIntents to the addGeofences() call.</string>
+    <style name="geofence_entered">You entered into geofence</style>
+    <string name="geofences_removed">Geofence was removed</string>
+    <string name="geofence_not_removed">Geofences was NOT removed</string>
+    <string name="error_adding_geofence">Error Happened, Can\'t Add Geofence</string>
+    <string name="e_mail">E-mail</string>
+    <string name="your_email_com">your@email.com</string>
+    <string name="password">Password</string>
+    <string name="register_label">Don\'t have account yet? Register now!</string>
+    <string name="register_screen_title">Create a new account</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="create_account_label">Create account</string>
+    <string name="repeat_password">Repeat Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="forgot_password_screen_title">Forgot your password?</string>
+    <string name="forgot_password_screen_description">Please enter the email you use to sign in. We will send you reset link there!</string>
+    <string name="reset_your_password_label">Reset password</string>
+    <string name="close">Close</string>
+    <string name="longitude">Longitude</string>
+    <string name="latitude">Latitude</string>
+    <string name="remove_geofence">Remove geofence</string>
+    <string name="location_disbaled">To locate your current location, please turn back on location in settings!</string>
+    <string name="gps_not_enabled">Your Gps is disabled!</string>
+    <string name="open_location_settings">Open settings</string>
+    <string name="cancel">Cancel</string>
+
+</resources>

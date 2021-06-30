@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <!--Data item that holds the reminder details-->
+        <variable
+            name="reminderDataItem"
+            type="com.udacity.project4.locationreminders.reminderslist.ReminderDataItem" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        tools:context=".locationreminders.ReminderDescriptionActivity">
+        <!--TODO: add the design of the reminder details-->
+
+        <TextView
+            android:id="@+id/title_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@{reminderDataItem.title}"
+            android:background="#F8D1A7"
+            android:gravity="center_horizontal"
+            android:textSize="@dimen/text_size_large"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Reminder Details" />
+
+        <TextView
+            android:id="@+id/description_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@{reminderDataItem.description}"
+            app:layout_constraintTop_toBottomOf="@+id/title_field"
+            tools:layout_editor_absoluteX="-16dp"
+            tools:text="Description" />
+
+
+        <TextView
+            android:id="@+id/location_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#FFD3D3"
+            android:gravity="center"
+            android:text="@string/reminder_location"
+            app:layout_constraintTop_toBottomOf="@+id/description_field"
+            tools:layout_editor_absoluteX="0dp" />
+
+
+        <TextView
+            android:id="@+id/location_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{reminderDataItem.location}"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@+id/location_label"
+            tools:layout_editor_absoluteX="0dp"
+            tools:text="Googleplex" />
+
+        <TextView
+            android:id="@+id/latitude_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#FFD3D3"
+            android:gravity="center"
+            android:text="@string/latitude"
+            app:layout_constraintBaseline_toBaselineOf="@+id/longitude_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/longitude_label" />
+
+        <TextView
+            android:id="@+id/longitude_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="#FFD3D3"
+            android:gravity="center"
+            android:text="@string/longitude"
+            app:layout_constraintEnd_toStartOf="@+id/latitude_label"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/location_field" />
+
+        <TextView
+            android:id="@+id/latitude_field"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{reminderDataItem.latitude.toString()}"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/longitude_field"
+            app:layout_constraintTop_toBottomOf="@+id/latitude_label"
+            tools:text="25.00" />
+
+        <TextView
+            android:id="@+id/longitude_field"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{reminderDataItem.longitude.toString()}"
+            android:gravity="center"
+            app:layout_constraintEnd_toStartOf="@+id/latitude_field"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/longitude_label"
+            tools:text="30.00" />
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/removeGeofenceBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/longitude_field" />
+
+        <Button
+            android:id="@+id/removeGeofenceBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="#FB6F6F"
+            android:text="@string/remove_geofence"
+            app:layout_constraintBottom_toTopOf="@+id/closeBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/closeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/close"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
