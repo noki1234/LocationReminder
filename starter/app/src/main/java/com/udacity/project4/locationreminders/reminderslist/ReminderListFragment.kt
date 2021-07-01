@@ -20,6 +20,7 @@ class ReminderListFragment : BaseFragment() {
     //use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
     private lateinit var binding: FragmentRemindersBinding
+    private lateinit var locationPermissionsUtil: LocationPermissionsUtil
 
 
     override fun onCreateView(
@@ -32,6 +33,7 @@ class ReminderListFragment : BaseFragment() {
                         R.layout.fragment_reminders, container, false
                 )
         binding.viewModel = _viewModel
+        locationPermissionsUtil = LocationPermissionsUtil(this)
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(false)
@@ -98,10 +100,10 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun checkPermissionsAndStartGeofencing() {
-        if (LocationPermissionsUtil.foregroundAndBackgroundLocationPermissionApproved(requireContext())) {
-            LocationPermissionsUtil.checkDeviceLocationSettingsAndAskForTurnOnGps(requireActivity(), binding.remindersConstraintLayout)
+        if (locationPermissionsUtil.foregroundAndBackgroundLocationPermissionApproved()) {
+            locationPermissionsUtil.checkDeviceLocationSettingsAndAskForTurnOnGps(binding.remindersConstraintLayout)
         } else {
-            LocationPermissionsUtil.requestForegroundAndBackgroundLocationPermissions(requireActivity())
+            locationPermissionsUtil.requestForegroundAndBackgroundLocationPermissions()
         }
     }
 

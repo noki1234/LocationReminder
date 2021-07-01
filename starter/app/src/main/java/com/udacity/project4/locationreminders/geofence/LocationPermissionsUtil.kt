@@ -2,7 +2,6 @@ package com.udacity.project4.locationreminders.geofence
 
 import android.Manifest
 import android.annotation.TargetApi
-import android.app.Activity
 import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -12,8 +11,8 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.app.ActivityCompat.startIntentSenderForResult
+import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.fragment.app.Fragment
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -24,21 +23,20 @@ import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 
 
-class LocationPermissionsUtil {
+class LocationPermissionsUtil(val fragment: Fragment) {
 
   
     
-    companion object {
         private val runningQOrLater = android.os.Build.VERSION.SDK_INT >=
                 android.os.Build.VERSION_CODES.Q
 
         @TargetApi(29)
-        fun foregroundAndBackgroundLocationPermissionApproved(context: Context): Boolean {
+        fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
             //Check if the ACCESS_FINE_LOCATION permission is granted.
             val foregroundLocationApproved = (
                     PackageManager.PERMISSION_GRANTED ==
-                            ActivityCompat.checkSelfPermission(
-                                context,
+                            checkSelfPermission(
+                                    fragment.requireContext(),
                                     Manifest.permission.ACCESS_FINE_LOCATION
                             ))
 
@@ -46,8 +44,9 @@ class LocationPermissionsUtil {
             val backgroundPermissionApproved =
                     if (runningQOrLater) { //for Q or
                         PackageManager.PERMISSION_GRANTED ==
-                                ActivityCompat.checkSelfPermission(
-                                    context, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                checkSelfPermission(
+                                    fragment.requireContext(),
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
                                 )
                     } else {
                         true
@@ -56,9 +55,9 @@ class LocationPermissionsUtil {
 
         }
 
-        fun requestForegroundAndBackgroundLocationPermissions(activty: Activity) {
+        fun requestForegroundAndBackgroundLocationPermissions() {
             //If the permissions have already been approved, don’t need to ask again (return)
-            if (foregroundAndBackgroundLocationPermissionApproved(activty))
+            if (foregroundAndBackgroundLocationPermissionApproved())
                 return
             //permissionsArray - contains the permissions that are going to be requested.
             //Initially, add ACCESS_FINE_LOCATION since that will be needed on all API levels.
@@ -72,16 +71,14 @@ class LocationPermissionsUtil {
                 }
                 else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE //lower than Q
             }
-            // Log.d(TAG, "Request foreground only location permission")
-            ActivityCompat.requestPermissions(
-                    activty,
+            fragment.requestPermissions(
                     permissionsArray,
                     resultCode
             )
         }
 
 
-        fun checkDeviceLocationSettingsAndAskForTurnOnGps(activity: Activity, view: View, resolve: Boolean = true): Task<LocationSettingsResponse> {
+        fun checkDeviceLocationSettingsAndAskForTurnOnGps(view: View, resolve: Boolean = true): Task<LocationSettingsResponse> {
 
             //Step 1: create a LocationRequest, a LocationSettingsRequest Builder.
             val locationRequest = LocationRequest.create().apply {
@@ -90,7 +87,7 @@ class LocationPermissionsUtil {
             val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
             //Step 2: Use LocationServices to get the Settings Client and create a val called locationSettingsResponseTask to check the location settings
-            val settingsClient = LocationServices.getSettingsClient(activity)
+            val settingsClient = LocationServices.getSettingsClient(this.fragment.requireActivity())
             val locationSettingsResponseTask =
                     settingsClient.checkLocationSettings(builder.build())
 
@@ -99,12 +96,7 @@ class LocationPermissionsUtil {
                 // if the exception is of type ResolvableApiException -> call startResolutionForResult() - to prompt the user to turn on device location.
                 if (exception is ResolvableApiException && resolve) {
                     try {
-                        println("KUK")
-                   //     startIntentSenderForResult(activity, exception.resolution.intentSender, REQUEST_TURN_DEVICE_LOCATION_ON, null, 0, 0, 0,null)
-//                        exception.startResolutionForResult(activity,
-//                                REQUEST_TURN_DEVICE_LOCATION_ON)
-                        startIntentSenderForResult(
-                            activity,
+                        this.fragment.startIntentSenderForResult(
                             exception.resolution.intentSender,
                             REQUEST_TURN_DEVICE_LOCATION_ON,
                             null,
@@ -122,35 +114,26 @@ class LocationPermissionsUtil {
                             view,
                             R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
                     ).setAction(android.R.string.ok) {
-                        checkDeviceLocationSettingsAndAskForTurnOnGps(activity, view, resolve)
+                        checkDeviceLocationSettingsAndAskForTurnOnGps(view, resolve)
                     }.show()
                 }
             }
 
             return locationSettingsResponseTask
-
         }
 
-
-
-        fun isGpsEnabled(context: Context): Boolean {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                // This is a new method provided in API 28
-                val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                return manager.isLocationEnabled
-            } else {
-                // This was deprecated in API 28
-                val mode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE,
-                        Settings.Secure.LOCATION_MODE_OFF);
-                return (mode != Settings.Secure.LOCATION_MODE_OFF);
-            }
+    fun isGpsEnabled(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // This is a new method provided in API 28
+            val manager = fragment.requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            return manager.isLocationEnabled
+        } else {
+            // This was deprecated in API 28
+            val mode = Settings.Secure.getInt(fragment.requireContext().getContentResolver(), Settings.Secure.LOCATION_MODE,
+                Settings.Secure.LOCATION_MODE_OFF);
+            return (mode != Settings.Secure.LOCATION_MODE_OFF);
         }
-
-
-
-
     }
-
 }
 
 private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33

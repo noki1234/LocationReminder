@@ -1,16 +1,18 @@
 package com.udacity.project4.locationreminders.savereminder
 
-import android.Manifest
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.library.BuildConfig.LIBRARY_PACKAGE_NAME
+import androidx.viewbinding.BuildConfig.LIBRARY_PACKAGE_NAME
 import com.google.android.material.snackbar.Snackbar
+import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -25,8 +27,12 @@ class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
+    private lateinit var locationPermissionsUtil: LocationPermissionsUtil
     private lateinit var geofenceUtil : GeofenceUtil
+    private val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
     private val REQUEST_TURN_DEVICE_LOCATION_ON = 29
+    private val LOCATION_PERMISSION_INDEX = 0
+    private val BACKGROUND_LOCATION_PERMISSION_INDEX = 1
 
 
     override fun onCreateView(
@@ -40,6 +46,7 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.viewModel = _viewModel
         geofenceUtil = GeofenceUtil(requireContext())
+        locationPermissionsUtil = LocationPermissionsUtil(this)
 
         return binding.root
     }
@@ -66,13 +73,12 @@ class SaveReminderFragment : BaseFragment() {
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        println("WHY IS THIS NOT CALLING?")
        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
-            println("INSIDE")
             addGeofenceAndSaveReminder()
         }
     }
+
 
     private fun addGeofenceAndSaveReminder() {
 
@@ -84,22 +90,52 @@ class SaveReminderFragment : BaseFragment() {
 
         val reminder = ReminderDataItem(title, description, location, latitude, longitude)
 
-        if (LocationPermissionsUtil.foregroundAndBackgroundLocationPermissionApproved(requireActivity())){
+        if (locationPermissionsUtil.foregroundAndBackgroundLocationPermissionApproved()){
             _viewModel.validateAndSaveReminder(reminder)
             GeofenceUtil(requireContext()).addGeofence(reminder)
         } else {
-            LocationPermissionsUtil.requestForegroundAndBackgroundLocationPermissions(requireActivity())
+            locationPermissionsUtil.requestForegroundAndBackgroundLocationPermissions()
         }
     }
 
     private fun checkDeviceLocationSettingsAndSaveReminderAndAddGeofence(resolve: Boolean = true) {
-        val locationSettingsResponseTask = LocationPermissionsUtil.checkDeviceLocationSettingsAndAskForTurnOnGps(requireActivity(), binding.constrainLayout, resolve)
+        val locationSettingsResponseTask = locationPermissionsUtil.checkDeviceLocationSettingsAndAskForTurnOnGps(binding.constrainLayout, resolve)
         locationSettingsResponseTask.addOnCompleteListener{
+            if(it.isSuccessful) {
                 addGeofenceAndSaveReminder()
+            }
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
 
+        println("PERMISSION - LOCATION_PERMISSION_INDEX == DENIED: ${grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED}" )
+        println("PERMISSION - requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE: ${requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE}" )
+        println("PERMISSION - BACKGROUND_LOCATION_PERMISSION_INDEX == DENIED: ${grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED}" )
+        if (
+            grantResults.isEmpty() ||
+            grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
+            (requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
+                    grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED))
+        {
+            println("NOT Granted")
+            //Snackbar explaining that the user needs location permissions in order to play
+            Snackbar.make(
+                binding.constrainLayout,
+                R.string.permission_denied_explanation,
+                Snackbar.LENGTH_INDEFINITE
+            ).setAction(R.string.settings) {
+                    startActivity(Intent(Settings.ACTION_SETTINGS))
+                }
+        } else {  // Permissions are granted
+            println("Granted")
+            checkDeviceLocationSettingsAndSaveReminderAndAddGeofence()
+        }
+    }
 
 }
 

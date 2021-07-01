@@ -2,14 +2,16 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -30,6 +32,7 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -58,6 +61,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     private lateinit var placeAutocomplete: AutocompleteSupportFragment
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mapFragment: SupportMapFragment
+    private lateinit var locationPermissionsUtil: LocationPermissionsUtil
     private val REQUEST_LOCATION_PERMISSION = 1
 
 
@@ -68,6 +72,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
         binding.viewModel = _viewModel
         binding.lifecycleOwner = this
+        locationPermissionsUtil = LocationPermissionsUtil(this)
 
         if (!Places.isInitialized()) {
             Places.initialize(context!!.applicationContext, "AIzaSyBUMiBf_WCKBqGJPZ82N3Jq6pljGK4r6dg")
@@ -123,8 +128,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         setPoiClick(map)
 
         val zoomLevel = 13f
-        if (isPermissionGranted() && LocationPermissionsUtil.isGpsEnabled(requireContext())) {
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        if (isPermissionGranted() && locationPermissionsUtil.isGpsEnabled()) {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener {
                 if (!focused && it != null) {
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), zoomLevel))
@@ -134,8 +141,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         }
 
         map.setOnMyLocationButtonClickListener {
-            if (!LocationPermissionsUtil.isGpsEnabled(requireContext())){
-                LocationPermissionsUtil.checkDeviceLocationSettingsAndAskForTurnOnGps(requireActivity(), binding.locationConstraintLayout)
+            if (!locationPermissionsUtil.isGpsEnabled()){
+                locationPermissionsUtil.checkDeviceLocationSettingsAndAskForTurnOnGps(binding.locationConstraintLayout)
             }
             false
         }
@@ -214,7 +221,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     }
 
     private fun isPermissionGranted() : Boolean {
-            return ContextCompat.checkSelfPermission(
+            return checkSelfPermission(
                     requireContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED
     }
@@ -266,10 +273,5 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             Log.e("MapsActivity", "Can't find style. Error: ", e)
         }
     }
-
-
-
-
-
 
 }
